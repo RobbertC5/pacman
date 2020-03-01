@@ -1067,6 +1067,19 @@ var initRenderer = function(){
             }
         },
 
+        // draw heatmap
+        drawHeatMap: function(){
+            ctx.save();
+            ctx.font = "normal 5px Arial";
+            ctx.fillStyle = "#CCC";
+            for (y=0; y<map.numRows; y++)
+            for (x=0; x<map.numCols; x++) {
+                if (map.heatMap[y][x]>=0)
+                    ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.3)*tileSize);
+            }
+            ctx.restore();
+        },
+
     });
 
     //

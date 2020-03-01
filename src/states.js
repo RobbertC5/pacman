@@ -1295,6 +1295,7 @@ var playState = {
         renderer.blitMap();
         renderer.drawScore();
         renderer.beginMapClip();
+        renderer.drawHeatMap();
         renderer.drawFruit();
         renderer.drawPaths();
         renderer.drawActors();
@@ -1513,6 +1514,7 @@ var deadState = (function() {
                 draw: function() {
                     commonDraw();
                     renderer.beginMapClip();
+                    renderer.drawHeatMap();
                     renderer.drawFruit();
                     renderer.drawActors();
                     renderer.endMapClip();
@@ -1588,6 +1590,7 @@ var finishState = (function(){
                     renderer.blitMap();
                     renderer.drawScore();
                     renderer.beginMapClip();
+                    renderer.drawHeatMap();
                     renderer.drawFruit();
                     renderer.drawActors();
                     renderer.drawTargets();

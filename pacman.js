@@ -579,6 +579,7 @@ var Map = function(numCols, numRows, tiles) {
     this.parseDots();
     this.parseTunnels();
     this.parseWalls();
+    this.createHeatMap();
 };
 
 Map.prototype.save = function(t) {
@@ -925,6 +926,25 @@ Map.prototype.onDotEat = function(x,y) {
     this.timeEaten[i] = vcr.getTime();
     renderer.erasePellet(x,y);
 };
+
+// creates a heatmap filled with standard values
+// -1: wall
+//  0: floor tile
+Map.prototype.createHeatMap = function(){
+    // a grid with all the values
+    this.heatMap = [];
+    for (y=0;y<this.numRows;y++){
+        this.heatMap[y] = [];
+        for (x=0;x<this.numCols;x++){
+            if (this.isFloorTile(x,y)){
+                this.heatMap[y][x] = 0;
+            }else{
+                this.heatMap[y][x] = -1;
+            }
+        }
+    }
+
+}
 //@line 1 "src/colors.js"
 // source: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
 
@@ -4118,6 +4138,18 @@ var initRenderer = function(){
                 }
             }
         },
+
+        // draw heatmap
+        drawHeatMap: function(){
+            ctx.save();
+            ctx.font = "normal 3px Arial";
+            ctx.fillStyle = "#CCC";
+            for (y=0; y<map.numRows; y++)
+            for (x=0; x<map.numCols; x++) {
+                ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.5)*tileSize); // TODO draw a color instead if > 0, and/or use push and pop to draw normal text
+            }
+            ctx.restore();
+        }
 
     });
 
@@ -10797,6 +10829,7 @@ var playState = {
         renderer.blitMap();
         renderer.drawScore();
         renderer.beginMapClip();
+        renderer.drawHeatMap();
         renderer.drawFruit();
         renderer.drawPaths();
         renderer.drawActors();
@@ -11015,6 +11048,7 @@ var deadState = (function() {
                 draw: function() {
                     commonDraw();
                     renderer.beginMapClip();
+                    renderer.drawHeatMap();
                     renderer.drawFruit();
                     renderer.drawActors();
                     renderer.endMapClip();
@@ -11090,6 +11124,7 @@ var finishState = (function(){
                     renderer.blitMap();
                     renderer.drawScore();
                     renderer.beginMapClip();
+                    renderer.drawHeatMap();
                     renderer.drawFruit();
                     renderer.drawActors();
                     renderer.drawTargets();

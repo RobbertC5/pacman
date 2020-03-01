@@ -36,6 +36,7 @@ var Map = function(numCols, numRows, tiles) {
     this.parseDots();
     this.parseTunnels();
     this.parseWalls();
+    this.createHeatMap();
 };
 
 Map.prototype.save = function(t) {
@@ -382,3 +383,22 @@ Map.prototype.onDotEat = function(x,y) {
     this.timeEaten[i] = vcr.getTime();
     renderer.erasePellet(x,y);
 };
+
+// creates a heatmap filled with standard values
+// -1: wall
+//  0: floor tile
+Map.prototype.createHeatMap = function(){
+    // a grid with all the values
+    this.heatMap = [];
+    for (y=0;y<this.numRows;y++){
+        this.heatMap[y] = [];
+        for (x=0;x<this.numCols;x++){
+            if (this.isFloorTile(x,y)){
+                this.heatMap[y][x] = 0;
+            }else{
+                this.heatMap[y][x] = -1;
+            }
+        }
+    }
+
+}
