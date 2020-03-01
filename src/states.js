@@ -1383,6 +1383,9 @@ var playState = {
                         break;
                     }
 
+                    // update heatmap
+                    map.updateHeatMap(pacman, actors);
+
                     // test pacman collision before and after updating ghosts
                     // (redundant to prevent pass-throughs)
                     // (if collision happens, stop immediately.)

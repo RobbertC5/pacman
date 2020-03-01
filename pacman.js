@@ -945,6 +945,14 @@ Map.prototype.createHeatMap = function(){
     }
 
 }
+
+Map.prototype.updateHeatMap = function(pacman, ghosts){
+    this.createHeatMap();
+    this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
+    for (let i=0;i<4;i++){
+        this.heatMap[ghosts[i].tile.y][ghosts[i].tile.x] = -1;
+    }
+}
 //@line 1 "src/colors.js"
 // source: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
 
@@ -4142,14 +4150,15 @@ var initRenderer = function(){
         // draw heatmap
         drawHeatMap: function(){
             ctx.save();
-            ctx.font = "normal 3px Arial";
+            ctx.font = "normal 5px Arial";
             ctx.fillStyle = "#CCC";
             for (y=0; y<map.numRows; y++)
             for (x=0; x<map.numCols; x++) {
-                ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.5)*tileSize); // TODO draw a color instead if > 0, and/or use push and pop to draw normal text
+                if (map.heatMap[y][x]>=0)
+                    ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.3)*tileSize);
             }
             ctx.restore();
-        }
+        },
 
     });
 
@@ -10916,6 +10925,9 @@ var playState = {
                         audio.extend.play();
                         break;
                     }
+
+                    // update heatmap
+                    map.updateHeatMap(pacman, actors);
 
                     // test pacman collision before and after updating ghosts
                     // (redundant to prevent pass-throughs)
