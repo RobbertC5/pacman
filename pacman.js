@@ -922,16 +922,16 @@ Map.prototype.getNeighborPositions = function({x,y}){
     let neighbors = [{x:x-1,y},{x:x+1,y},{x,y:y-1},{x,y:y+1}];
     for(let i=3;i>=0;i--){
         // normal tile
-        if (x>=0 && x<this.numCols && y>=0 && y<this.numRows) {
+        if (neighbors[i].x>=0 && neighbors[i].x<this.numCols && neighbors[i].y>=0 && neighbors[i].y<this.numRows) {
             continue;
         }
         // tunnel tile
         let tunnel = this.tunnelRows[neighbors[i].y];
         if (tunnel && (neighbors[i].x < 0)){
-            neighbors[i].x = this.numCols;
+            neighbors[i].x = this.numCols-1;
             continue;
         }
-        else if (tunnel && (neighbors[i].x > this.numCols)){
+        else if (tunnel && (neighbors[i].x >= this.numCols)){
             neighbors[i].x = 0;
             continue;
         }
