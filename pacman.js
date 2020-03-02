@@ -918,6 +918,29 @@ Map.prototype.isFloorTile = function(x,y) {
     return this.isFloorTileChar(this.getTile(x,y));
 };
 
+Map.prototype.getNeighborPositions = function({x,y}){
+    let neighbors = [{x:x-1,y},{x:x+1,y},{x,y:y-1},{x,y:y+1}];
+    for(let i=3;i>=0;i--){
+        // normal tile
+        if (x>=0 && x<this.numCols && y>=0 && y<this.numRows) {
+            continue;
+        }
+        // tunnel tile
+        let tunnel = this.tunnelRows[neighbors[i].y];
+        if (tunnel && (neighbors[i].x < 0)){
+            neighbors[i].x = this.numCols;
+            continue;
+        }
+        else if (tunnel && (neighbors[i].x > this.numCols)){
+            neighbors[i].x = 0;
+            continue;
+        }
+        // outside of field tile
+        neighbors.splice(i,1);
+    }
+    return neighbors;
+}
+
 // mark the dot at the given coordinate eaten
 Map.prototype.onDotEat = function(x,y) {
     this.dotsEaten++;
@@ -948,9 +971,22 @@ Map.prototype.createHeatMap = function(){
 
 Map.prototype.updateHeatMap = function(pacman, ghosts){
     this.createHeatMap();
-    this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
+    this.heatMap[pacman.tile.y][pacman.tile.x] = 50;
     for (let i=0;i<4;i++){
         this.heatMap[ghosts[i].tile.y][ghosts[i].tile.x] = -1;
+    }
+
+    // Every value > 0 will spread to other tiles (excluding < 0)
+    let calcPos = [{'x': pacman.tile.x, 'y': pacman.tile.y}];
+    while (calcPos.length > 0){
+        let pos = calcPos.shift();
+        let neighbors = this.getNeighborPositions(pos);
+        for (let neighbor of neighbors){
+            if (this.heatMap[neighbor.y][neighbor.x] >= 0 && this.heatMap[neighbor.y][neighbor.x] < this.heatMap[pos.y][pos.x]){
+                this.heatMap[neighbor.y][neighbor.x] = this.heatMap[pos.y][pos.x] - 1;
+                calcPos.push(neighbor);
+            }
+        }
     }
 }
 //@line 1 "src/colors.js"
