@@ -1071,11 +1071,15 @@ var initRenderer = function(){
         drawHeatMap: function(){
             ctx.save();
             ctx.font = "normal 5px Arial";
-            ctx.fillStyle = "#CCC";
             for (y=0; y<map.numRows; y++)
             for (x=0; x<map.numCols; x++) {
-                if (map.heatMap[y][x]>=0)
-                    ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.3)*tileSize);
+                if (map.heatMap[y][x]>=0){
+                    let color = Math.min((255-map.heatMap[y][x])*2,150);
+                    ctx.fillStyle = "hsl("+color+", 100%, 50%, 0.5)";
+                    ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
+                    // ctx.fillStyle = "#CCC";
+                    // ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.3)*tileSize);
+                }
             }
             ctx.restore();
         },

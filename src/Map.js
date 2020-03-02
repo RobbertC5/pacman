@@ -428,7 +428,7 @@ Map.prototype.createHeatMap = function(){
 
 Map.prototype.updateHeatMap = function(pacman, ghosts){
     this.createHeatMap();
-    this.heatMap[pacman.tile.y][pacman.tile.x] = 50;
+    this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
     for (let i=0;i<4;i++){
         this.heatMap[ghosts[i].tile.y][ghosts[i].tile.x] = -1;
     }
