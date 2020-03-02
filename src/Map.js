@@ -408,7 +408,9 @@ Map.prototype.onDotEat = function(x,y) {
 };
 
 // creates a heatmap filled with standard values
-// -1: wall
+// -3: wall
+// -2: used as starting value in hill climing (to avoid running into walls)
+// -1: ghost (set in updateHeatMap)
 //  0: floor tile
 Map.prototype.createHeatMap = function(){
     // a grid with all the values
@@ -419,7 +421,7 @@ Map.prototype.createHeatMap = function(){
             if (this.isFloorTile(x,y)){
                 this.heatMap[y][x] = 0;
             }else{
-                this.heatMap[y][x] = -1;
+                this.heatMap[y][x] = -3;
             }
         }
     }

@@ -431,10 +431,12 @@ Ghost.prototype.steer = function() {
                         // edit openTiles to reflect the current map's special contraints
                         map.constrainGhostTurns(nextTile, openTiles, this.dirEnum);
                     }
+                    dirEnum = getTurnSteepestHill(nextTile, openTiles);
+                }else{
+                    // ghost is going home: use normal method with target
+                    // choose direction that minimizes distance to target
+                    dirEnum = getTurnClosestToTarget(nextTile, this.targetTile, openTiles);
                 }
-
-                // choose direction that minimizes distance to target
-                dirEnum = getTurnClosestToTarget(nextTile, this.targetTile, openTiles);
             }
         }
 

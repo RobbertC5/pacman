@@ -45,6 +45,27 @@ var setDirFromEnum = function(dir,dirEnum) {
 };
 
 // return the direction of the open, surrounding tile closest to our target
+var getTurnSteepestHill = function(tile,openTiles) {
+
+    var targetHeight;
+    var steepestHill = -2;              // variable used for finding maximum heatmap neighbor higher than wall
+    var dir = {};
+    var dirEnum = 0;
+    var i;
+    for (i=0; i<4; i++) {
+        if (openTiles[i]) {
+            setDirFromEnum(dir,i);
+            targetHeight = map.heatMap[dir.y + tile.y][dir.x + tile.x];
+            if (targetHeight > steepestHill) {
+                steepestHill = targetHeight;
+                dirEnum = i;
+            }
+        }
+    }
+    return dirEnum;
+};
+
+// return the direction of the open, surrounding tile closest to our target
 var getTurnClosestToTarget = function(tile,targetTile,openTiles) {
 
     var dx,dy,dist;                      // variables used for euclidean distance
