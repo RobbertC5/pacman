@@ -16,6 +16,9 @@ var Ghost = function() {
 
     this.randomScatter = false;
     this.faceDirEnum = this.dirEnum;
+
+    this.futureTile = this.tile; // when hill climbing this is the tile the ghost
+                                 // decided to go onto as soon as he knows that
 };
 
 // inherit functions from Actor class
@@ -348,6 +351,7 @@ Ghost.prototype.steer = function() {
     // only execute rest of the steering logic if we're pursuing a target tile
     if (this.mode != GHOST_OUTSIDE && this.mode != GHOST_GOING_HOME) {
         this.targetting = false;
+        this.futureTile = this.tile;
         return;
     }
 
@@ -385,6 +389,7 @@ Ghost.prototype.steer = function() {
             while (!openTiles[dirEnum])
                 dirEnum = (dirEnum+1)%4; // look at likelihood of random turns
             this.targetting = false;
+            this.futureTile = this.tile;
         }
         else {
 
@@ -436,9 +441,16 @@ Ghost.prototype.steer = function() {
                     // ghost is going home or scattering: use normal method with target
                     // choose direction that minimizes distance to target
                     dirEnum = getTurnClosestToTarget(nextTile, this.targetTile, openTiles);
+                    this.futureTile = this.tile;
                 }else{
                     // ghost is targetting pacman: use hill climbing
                     dirEnum = getTurnSteepestHill(nextTile, openTiles);
+
+                    // update heatmap with future information
+                    let dir = {};
+                    setDirFromEnum(dir,dirEnum);
+                    this.futureTile = {x: nextTile.x + dir.x, y: nextTile.y + dir.y};
+                    map.updateHeatMap(); // so the next ghosts will go the other direction, even this frame
                 }
             }
         }

@@ -30,6 +30,10 @@ var Map = function(numCols, numRows, tiles) {
     this.homeTopPixel = 17*tileSize;
     this.homeBottomPixel = 18*tileSize;
 
+    // pacman and ghosts
+    this.pacman = null;
+    this.ghosts = [];
+
     this.timeEaten = {};
 
     this.resetCurrent();
@@ -428,10 +432,20 @@ Map.prototype.createHeatMap = function(){
 
 }
 
-Map.prototype.updateHeatMap = function(pacman, ghosts){
+Map.prototype.setActors = function(pacman, ghosts){
+    this.pacman = pacman;
+    this.ghosts = ghosts;
+}
+
+Map.prototype.updateHeatMap = function(){
+    if(this.pacman === null){
+        console.error('Actors not known');
+    }
+    let pacman = this.pacman;
+    let ghosts = this.ghosts;
     this.createHeatMap();
     for (let i=0;i<4;i++){
-        this.heatMap[ghosts[i].tile.y][ghosts[i].tile.x] = -1;
+        this.heatMap[ghosts[i].futureTile.y][ghosts[i].futureTile.x] = -1;
     }
     this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
 

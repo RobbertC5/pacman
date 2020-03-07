@@ -1289,6 +1289,7 @@ var playState = {
         if (practiceMode) {
             vcr.reset();
         }
+        map.setActors(pacman, actors);
     },
     draw: function() {
         renderer.setLevelFlash(false);
@@ -1384,7 +1385,7 @@ var playState = {
                     }
 
                     // update heatmap
-                    map.updateHeatMap(pacman, actors);
+                    map.updateHeatMap();
 
                     // test pacman collision before and after updating ghosts
                     // (redundant to prevent pass-throughs)
