@@ -18,6 +18,7 @@ window.addEventListener("load", function() {
 			ghosts[i].isDrawTarget = true;
 			ghosts[i].isDrawPath = true;
 		}
+		isDrawHeatMap = true;
 	}
 	else {
 		switchState(homeState);

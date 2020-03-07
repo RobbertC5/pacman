@@ -97,6 +97,7 @@
     var KEY_I = 73;
     var KEY_O = 79;
     var KEY_P = 80;
+    var KEY_H = 72;
 
     var KEY_1 = 49;
     var KEY_2 = 50;
@@ -188,6 +189,7 @@
     addKeyDown(KEY_I, function() { pacman.invincible = !pacman.invincible; }, isPracticeMode);
     addKeyDown(KEY_O, function() { turboMode = !turboMode; }, isPracticeMode);
     addKeyDown(KEY_P, function() { pacman.ai = !pacman.ai; }, isPracticeMode);
+    addKeyDown(KEY_H, function() { isDrawHeatMap = !isDrawHeatMap; }, isPracticeMode);
 
     addKeyDown(KEY_END, function() { executive.togglePause(); });
 

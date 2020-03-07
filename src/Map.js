@@ -439,7 +439,8 @@ Map.prototype.setActors = function(pacman, ghosts){
 
 Map.prototype.updateHeatMap = function(){
     if(this.pacman === null){
-        console.error('Actors not known');
+        // this will get fired in learn mode
+        return;
     }
     let pacman = this.pacman;
     let ghosts = this.ghosts;

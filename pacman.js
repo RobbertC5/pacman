@@ -169,6 +169,7 @@ var GAME_OTTO = 3;
 
 var practiceMode = false;
 var turboMode = false;
+var isDrawHeatMap = false;
 
 // current game mode
 var gameMode = GAME_PACMAN;
@@ -303,10 +304,11 @@ var clearCheats, backupCheats, restoreCheats;
             actors[i].isDrawPath = false;
             actors[i].isDrawTarget = false;
         }
+        isDrawHeatMap = false;
         executive.setUpdatesPerSecond(60);
     };
 
-    var i, invincible, ai, isDrawPath, isDrawTarget;
+    var i, invincible, ai, isDrawPath, isDrawTarget, isDrawHeatMap_;
     isDrawPath = {};
     isDrawTarget = {};
     backupCheats = function() {
@@ -316,6 +318,7 @@ var clearCheats, backupCheats, restoreCheats;
             isDrawPath[i] = actors[i].isDrawPath;
             isDrawTarget[i] = actors[i].isDrawTarget;
         }
+        isDrawHeatMap_ = isDrawHeatMap;
     };
     restoreCheats = function() {
         pacman.invincible = invincible;
@@ -324,6 +327,7 @@ var clearCheats, backupCheats, restoreCheats;
             actors[i].isDrawPath = isDrawPath[i];
             actors[i].isDrawTarget = isDrawTarget[i];
         }
+        isDrawHeatMap = isDrawHeatMap_;
     };
 })();
 
@@ -1003,7 +1007,8 @@ Map.prototype.setActors = function(pacman, ghosts){
 
 Map.prototype.updateHeatMap = function(){
     if(this.pacman === null){
-        console.error('Actors not known');
+        // this will get fired in learn mode
+        return;
     }
     let pacman = this.pacman;
     let ghosts = this.ghosts;
@@ -4222,19 +4227,21 @@ var initRenderer = function(){
 
         // draw heatmap
         drawHeatMap: function(){
-            ctx.save();
-            ctx.font = "normal 5px Arial";
-            for (y=0; y<map.numRows; y++)
-            for (x=0; x<map.numCols; x++) {
-                if (map.heatMap[y][x]>=0){
-                    let color = Math.min((255-map.heatMap[y][x])*2,150);
-                    ctx.fillStyle = "hsl("+color+", 100%, 50%, 0.5)";
-                    ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
-                    // ctx.fillStyle = "#CCC";
-                    // ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.3)*tileSize);
+            if (isDrawHeatMap){
+                ctx.save();
+                ctx.font = "normal 5px Arial";
+                for (y=0; y<map.numRows; y++)
+                for (x=0; x<map.numCols; x++) {
+                    if (map.heatMap[y][x]>=0){
+                        let color = Math.min((255-map.heatMap[y][x])*2,150);
+                        ctx.fillStyle = "hsl("+color+", 100%, 50%, 0.5)";
+                        ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
+                        // ctx.fillStyle = "#CCC";
+                        // ctx.fillText(map.heatMap[y][x], (x+0.5)*tileSize, (y+0.3)*tileSize);
+                    }
                 }
+                ctx.restore();
             }
-            ctx.restore();
         },
 
     });
@@ -4897,7 +4904,14 @@ var inGameMenu = (function() {
                 ghosts[i].isDrawPath = on;
             }
         });
-    cheatsMenu.addSpacer(1);
+    cheatsMenu.addToggleTextButton("SHOW HEATMAP",
+        function() {
+            return isDrawHeatMap;
+        },
+        function(on) {
+            isDrawHeatMap = on;
+        });
+    // cheatsMenu.addSpacer(1);
     cheatsMenu.addTextButton("BACK", function() {
         cheatsMenu.disable();
         practiceMenu.enable();
@@ -11380,6 +11394,7 @@ var overState = (function() {
     var KEY_I = 73;
     var KEY_O = 79;
     var KEY_P = 80;
+    var KEY_H = 72;
 
     var KEY_1 = 49;
     var KEY_2 = 50;
@@ -11471,6 +11486,7 @@ var overState = (function() {
     addKeyDown(KEY_I, function() { pacman.invincible = !pacman.invincible; }, isPracticeMode);
     addKeyDown(KEY_O, function() { turboMode = !turboMode; }, isPracticeMode);
     addKeyDown(KEY_P, function() { pacman.ai = !pacman.ai; }, isPracticeMode);
+    addKeyDown(KEY_H, function() { isDrawHeatMap = !isDrawHeatMap; }, isPracticeMode);
 
     addKeyDown(KEY_END, function() { executive.togglePause(); });
 
@@ -13667,6 +13683,7 @@ window.addEventListener("load", function() {
 			ghosts[i].isDrawTarget = true;
 			ghosts[i].isDrawPath = true;
 		}
+		isDrawHeatMap = true;
 	}
 	else {
 		switchState(homeState);

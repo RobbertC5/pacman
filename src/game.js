@@ -9,6 +9,7 @@ var GAME_OTTO = 3;
 
 var practiceMode = false;
 var turboMode = false;
+var isDrawHeatMap = false;
 
 // current game mode
 var gameMode = GAME_PACMAN;
@@ -143,10 +144,11 @@ var clearCheats, backupCheats, restoreCheats;
             actors[i].isDrawPath = false;
             actors[i].isDrawTarget = false;
         }
+        isDrawHeatMap = false;
         executive.setUpdatesPerSecond(60);
     };
 
-    var i, invincible, ai, isDrawPath, isDrawTarget;
+    var i, invincible, ai, isDrawPath, isDrawTarget, isDrawHeatMap_;
     isDrawPath = {};
     isDrawTarget = {};
     backupCheats = function() {
@@ -156,6 +158,7 @@ var clearCheats, backupCheats, restoreCheats;
             isDrawPath[i] = actors[i].isDrawPath;
             isDrawTarget[i] = actors[i].isDrawTarget;
         }
+        isDrawHeatMap_ = isDrawHeatMap;
     };
     restoreCheats = function() {
         pacman.invincible = invincible;
@@ -164,6 +167,7 @@ var clearCheats, backupCheats, restoreCheats;
             actors[i].isDrawPath = isDrawPath[i];
             actors[i].isDrawTarget = isDrawTarget[i];
         }
+        isDrawHeatMap = isDrawHeatMap_;
     };
 })();
 

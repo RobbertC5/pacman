@@ -121,7 +121,14 @@ var inGameMenu = (function() {
                 ghosts[i].isDrawPath = on;
             }
         });
-    cheatsMenu.addSpacer(1);
+    cheatsMenu.addToggleTextButton("SHOW HEATMAP",
+        function() {
+            return isDrawHeatMap;
+        },
+        function(on) {
+            isDrawHeatMap = on;
+        });
+    // cheatsMenu.addSpacer(1);
     cheatsMenu.addTextButton("BACK", function() {
         cheatsMenu.disable();
         practiceMenu.enable();
