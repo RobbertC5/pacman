@@ -430,10 +430,10 @@ Map.prototype.createHeatMap = function(){
 
 Map.prototype.updateHeatMap = function(pacman, ghosts){
     this.createHeatMap();
-    this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
     for (let i=0;i<4;i++){
         this.heatMap[ghosts[i].tile.y][ghosts[i].tile.x] = -1;
     }
+    this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
 
     // Every value > 0 will spread to other tiles (excluding < 0)
     let calcPos = [{'x': pacman.tile.x, 'y': pacman.tile.y}];
