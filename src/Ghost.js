@@ -470,7 +470,6 @@ Ghost.prototype.setTarget = function() {
 
     this.targetTile = this.getTargetTile();
 
-    if (this != clyde) {
-        this.targetting = 'pacman';
-    }
+    // everyone targets pacman, even clyde
+    this.targetting = 'pacman';
 };
