@@ -431,11 +431,14 @@ Ghost.prototype.steer = function() {
                         // edit openTiles to reflect the current map's special contraints
                         map.constrainGhostTurns(nextTile, openTiles, this.dirEnum);
                     }
-                    dirEnum = getTurnSteepestHill(nextTile, openTiles);
-                }else{
-                    // ghost is going home: use normal method with target
+                }
+                if (this.mode == GHOST_GOING_HOME || this.targetting =='corner'){
+                    // ghost is going home or scattering: use normal method with target
                     // choose direction that minimizes distance to target
                     dirEnum = getTurnClosestToTarget(nextTile, this.targetTile, openTiles);
+                }else{
+                    // ghost is targetting pacman: use hill climbing
+                    dirEnum = getTurnSteepestHill(nextTile, openTiles);
                 }
             }
         }
