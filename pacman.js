@@ -483,6 +483,27 @@ var setDirFromEnum = function(dir,dirEnum) {
 };
 
 // return the direction of the open, surrounding tile closest to our target
+var getTurnSteepestHill = function(tile,openTiles) {
+
+    var targetHeight;
+    var steepestHill = -2;              // variable used for finding maximum heatmap neighbor higher than wall
+    var dir = {};
+    var dirEnum = 0;
+    var i;
+    for (i=0; i<4; i++) {
+        if (openTiles[i]) {
+            setDirFromEnum(dir,i);
+            targetHeight = map.heatMap[dir.y + tile.y][dir.x + tile.x] || 0; // if it does not exist: this means end of tunnel
+            if (targetHeight > steepestHill) {
+                steepestHill = targetHeight;
+                dirEnum = i;
+            }
+        }
+    }
+    return dirEnum;
+};
+
+// return the direction of the open, surrounding tile closest to our target
 var getTurnClosestToTarget = function(tile,targetTile,openTiles) {
 
     var dx,dy,dist;                      // variables used for euclidean distance
@@ -572,6 +593,10 @@ var Map = function(numCols, numRows, tiles) {
     };
     this.homeTopPixel = 17*tileSize;
     this.homeBottomPixel = 18*tileSize;
+
+    // pacman and ghosts
+    this.pacman = null;
+    this.ghosts = [];
 
     this.timeEaten = {};
 
@@ -951,7 +976,9 @@ Map.prototype.onDotEat = function(x,y) {
 };
 
 // creates a heatmap filled with standard values
-// -1: wall
+// -3: wall
+// -2: used as starting value in hill climing (to avoid running into walls)
+// -1: ghost (set in updateHeatMap)
 //  0: floor tile
 Map.prototype.createHeatMap = function(){
     // a grid with all the values
@@ -962,19 +989,29 @@ Map.prototype.createHeatMap = function(){
             if (this.isFloorTile(x,y)){
                 this.heatMap[y][x] = 0;
             }else{
-                this.heatMap[y][x] = -1;
+                this.heatMap[y][x] = -3;
             }
         }
     }
 
 }
 
-Map.prototype.updateHeatMap = function(pacman, ghosts){
-    this.createHeatMap();
-    this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
-    for (let i=0;i<4;i++){
-        this.heatMap[ghosts[i].tile.y][ghosts[i].tile.x] = -1;
+Map.prototype.setActors = function(pacman, ghosts){
+    this.pacman = pacman;
+    this.ghosts = ghosts;
+}
+
+Map.prototype.updateHeatMap = function(){
+    if(this.pacman === null){
+        console.error('Actors not known');
     }
+    let pacman = this.pacman;
+    let ghosts = this.ghosts;
+    this.createHeatMap();
+    for (let i=0;i<4;i++){
+        this.heatMap[ghosts[i].futureTile.y][ghosts[i].futureTile.x] = -1;
+    }
+    this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
 
     // Every value > 0 will spread to other tiles (excluding < 0)
     let calcPos = [{'x': pacman.tile.x, 'y': pacman.tile.y}];
@@ -3466,7 +3503,7 @@ var initRenderer = function(){
                 openTiles = getOpenTiles(tile, dirEnum);
                 if (actor != pacman && map.constrainGhostTurns)
                     map.constrainGhostTurns(tile, openTiles, dirEnum);
-                dirEnum = getTurnClosestToTarget(tile, target, openTiles);
+                dirEnum = getTurnSteepestHill(tile, openTiles);
                 setDirFromEnum(dir,dirEnum);
                 
                 // if the next tile is our target, determine how mush distance is left and break loop
@@ -7668,6 +7705,9 @@ var Ghost = function() {
 
     this.randomScatter = false;
     this.faceDirEnum = this.dirEnum;
+
+    this.futureTile = this.tile; // when hill climbing this is the tile the ghost
+                                 // decided to go onto as soon as he knows that
 };
 
 // inherit functions from Actor class
@@ -8000,6 +8040,7 @@ Ghost.prototype.steer = function() {
     // only execute rest of the steering logic if we're pursuing a target tile
     if (this.mode != GHOST_OUTSIDE && this.mode != GHOST_GOING_HOME) {
         this.targetting = false;
+        this.futureTile = this.tile;
         return;
     }
 
@@ -8037,6 +8078,7 @@ Ghost.prototype.steer = function() {
             while (!openTiles[dirEnum])
                 dirEnum = (dirEnum+1)%4; // look at likelihood of random turns
             this.targetting = false;
+            this.futureTile = this.tile;
         }
         else {
 
@@ -8084,9 +8126,21 @@ Ghost.prototype.steer = function() {
                         map.constrainGhostTurns(nextTile, openTiles, this.dirEnum);
                     }
                 }
+                if (this.mode == GHOST_GOING_HOME || this.targetting =='corner'){
+                    // ghost is going home or scattering: use normal method with target
+                    // choose direction that minimizes distance to target
+                    dirEnum = getTurnClosestToTarget(nextTile, this.targetTile, openTiles);
+                    this.futureTile = this.tile;
+                }else{
+                    // ghost is targetting pacman: use hill climbing
+                    dirEnum = getTurnSteepestHill(nextTile, openTiles);
 
-                // choose direction that minimizes distance to target
-                dirEnum = getTurnClosestToTarget(nextTile, this.targetTile, openTiles);
+                    // update heatmap with future information
+                    let dir = {};
+                    setDirFromEnum(dir,dirEnum);
+                    this.futureTile = {x: nextTile.x + dir.x, y: nextTile.y + dir.y};
+                    map.updateHeatMap(); // so the next ghosts will go the other direction, even this frame
+                }
             }
         }
 
@@ -8117,9 +8171,8 @@ Ghost.prototype.setTarget = function() {
 
     this.targetTile = this.getTargetTile();
 
-    if (this != clyde) {
-        this.targetting = 'pacman';
-    }
+    // everyone targets pacman, even clyde
+    this.targetting = 'pacman';
 };
 //@line 1 "src/Player.js"
 //////////////////////////////////////////////////////////////////////////////////////
@@ -10872,6 +10925,7 @@ var playState = {
         if (practiceMode) {
             vcr.reset();
         }
+        map.setActors(pacman, actors);
     },
     draw: function() {
         renderer.setLevelFlash(false);
@@ -10967,7 +11021,7 @@ var playState = {
                     }
 
                     // update heatmap
-                    map.updateHeatMap(pacman, actors);
+                    map.updateHeatMap();
 
                     // test pacman collision before and after updating ghosts
                     // (redundant to prevent pass-throughs)
