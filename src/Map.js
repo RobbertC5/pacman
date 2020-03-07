@@ -433,6 +433,14 @@ Map.prototype.updateHeatMap = function(pacman, ghosts){
     this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
     for (let i=0;i<4;i++){
         this.heatMap[ghosts[i].tile.y][ghosts[i].tile.x] = -1;
+        let dir1 = {};
+        setDirFromEnum(dir1,ghosts[i].dirEnum);
+        this.heatMap[ghosts[i].tile.y+dir1.y][ghosts[i].tile.x+dir1.x] = -1;
+        if (ghosts[i].passedMidTile){
+            let dir2 = {}; // FIXME maybe this can be simpeler
+            setDirFromEnum(dir2,ghosts[i].faceDirEnum);
+            this.heatMap[ghosts[i].tile.y+dir1.y+dir2.y][ghosts[i].tile.x+dir1.x+dir2.x] = -1;
+        }
     }
 
     // Every value > 0 will spread to other tiles (excluding < 0)

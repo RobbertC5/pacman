@@ -16,6 +16,7 @@ var Ghost = function() {
 
     this.randomScatter = false;
     this.faceDirEnum = this.dirEnum;
+    this.passedMidTile = false;
 };
 
 // inherit functions from Actor class
@@ -362,6 +363,7 @@ Ghost.prototype.steer = function() {
 
         // commit previous direction
         this.setDir(this.faceDirEnum);
+        this.passedMidTile = false;
     }
     // JUST PASSED MID-TILE (update face direction)
     else if (
@@ -369,7 +371,9 @@ Ghost.prototype.steer = function() {
             this.dirEnum == DIR_LEFT  && this.tilePixel.x == midTile.x-1 ||
             this.dirEnum == DIR_UP    && this.tilePixel.y == midTile.y-1 ||
             this.dirEnum == DIR_DOWN  && this.tilePixel.y == midTile.y+1) {
-
+        
+        this.passedMidTile = true;
+        
         // get next tile
         var nextTile = {
             x: this.tile.x + this.dir.x,
@@ -442,6 +446,8 @@ Ghost.prototype.steer = function() {
 
         // Point eyeballs to the determined direction.
         this.faceDirEnum = dirEnum;
+
+        // fixme update heatmap here so next ghost choses other direction, even if exactly same spot
     }
 };
 
