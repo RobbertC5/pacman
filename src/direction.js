@@ -55,7 +55,9 @@ var getTurnSteepestHill = function(tile,openTiles) {
     for (i=0; i<4; i++) {
         if (openTiles[i]) {
             setDirFromEnum(dir,i);
-            targetHeight = map.heatMap[dir.y + tile.y][dir.x + tile.x] || 0; // if it does not exist: this means end of tunnel
+            let realPos = {x: dir.x + tile.x, y:dir.y + tile.y};
+            map.mapPosition(realPos);
+            targetHeight = map.heatMap[realPos.y][realPos.x];
             if (targetHeight > steepestHill) {
                 steepestHill = targetHeight;
                 dirEnum = i;

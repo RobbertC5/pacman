@@ -379,25 +379,33 @@ Map.prototype.isFloorTile = function(x,y) {
     return this.isFloorTileChar(this.getTile(x,y));
 };
 
+Map.prototype.mapPosition = function(pos){
+    // normal tile
+    if (pos.x>=0 && pos.x<this.numCols && pos.y>=0 && pos.y<this.numRows) {
+        return true;
+    }
+    // tunnel tile
+    let tunnel = this.tunnelRows[pos.y];
+    if (tunnel && (pos.x < 0)){
+        pos.x = this.numCols-1;
+        return true;
+    }
+    else if (tunnel && (pos.x >= this.numCols)){
+        pos.x = 0;
+        return true;
+    }
+    // outside of field tile
+    return false;
+}
+
 Map.prototype.getNeighborPositions = function({x,y}){
     let neighbors = [{x:x-1,y},{x:x+1,y},{x,y:y-1},{x,y:y+1}];
     for(let i=3;i>=0;i--){
-        // normal tile
-        if (neighbors[i].x>=0 && neighbors[i].x<this.numCols && neighbors[i].y>=0 && neighbors[i].y<this.numRows) {
+        if (this.mapPosition(neighbors[i])){
             continue;
+        }else{
+            neighbors.splice(i,1);
         }
-        // tunnel tile
-        let tunnel = this.tunnelRows[neighbors[i].y];
-        if (tunnel && (neighbors[i].x < 0)){
-            neighbors[i].x = this.numCols-1;
-            continue;
-        }
-        else if (tunnel && (neighbors[i].x >= this.numCols)){
-            neighbors[i].x = 0;
-            continue;
-        }
-        // outside of field tile
-        neighbors.splice(i,1);
     }
     return neighbors;
 }
