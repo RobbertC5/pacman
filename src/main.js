@@ -20,6 +20,11 @@ window.addEventListener("load", function() {
 		}
 		isDrawHeatMap = true;
 	}
+	else if (anchor == "heatmap_pac" || anchor == "heatmap_mspac") {
+		gameMode = (anchor == "heatmap_pac") ? GAME_PACMAN : GAME_MSPACMAN;
+		switchState(newGameState);
+		isDrawHeatMap = true;
+	}
 	else {
 		switchState(homeState);
 	}
