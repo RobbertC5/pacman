@@ -446,7 +446,9 @@ Map.prototype.updateHeatMap = function(){
     let ghosts = this.ghosts;
     this.createHeatMap();
     for (let i=0;i<4;i++){
-        this.heatMap[ghosts[i].futureTile.y][ghosts[i].futureTile.x] = -1;
+        if (ghosts[i].targetting == 'pacman'){
+            this.heatMap[ghosts[i].futureTile.y][ghosts[i].futureTile.x] = -1;
+        }
     }
     this.heatMap[pacman.tile.y][pacman.tile.x] = 255;
 
