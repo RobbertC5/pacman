@@ -437,9 +437,10 @@ Ghost.prototype.steer = function() {
                         map.constrainGhostTurns(nextTile, openTiles, this.dirEnum);
                     }
                 }
-                if (this.mode == GHOST_GOING_HOME || this.targetting =='corner'){
+                if (this.mode == GHOST_GOING_HOME || this.targetting =='corner' || state == learnState){
                     // ghost is going home or scattering: use normal method with target
                     // choose direction that minimizes distance to target
+                    // also do original behavior in learn game state
                     dirEnum = getTurnClosestToTarget(nextTile, this.targetTile, openTiles);
                     this.futureTile = this.tile;
                 }else{
@@ -482,6 +483,10 @@ Ghost.prototype.setTarget = function() {
 
     this.targetTile = this.getTargetTile();
 
-    // everyone targets pacman, even clyde
-    this.targetting = 'pacman';
+    // who targets pacman?
+    // if playing normal game mode: every ghost,
+    // otherwise: every ghost except clyde
+    if (state != learnState || this != clyde) { 
+        this.targetting = 'pacman';
+    }
 };

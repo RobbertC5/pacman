@@ -350,7 +350,11 @@ var initRenderer = function(){
                 openTiles = getOpenTiles(tile, dirEnum);
                 if (actor != pacman && map.constrainGhostTurns)
                     map.constrainGhostTurns(tile, openTiles, dirEnum);
-                dirEnum = getTurnSteepestHill(tile, openTiles);
+                if (actor.mode == GHOST_GOING_HOME || actor.targetting =='corner' || state == learnState) {
+                    dirEnum = getTurnClosestToTarget(tile, target, openTiles);
+                } else {
+                    dirEnum = getTurnSteepestHill(tile, openTiles);
+                }
                 setDirFromEnum(dir,dirEnum);
                 
                 // if the next tile is our target, determine how mush distance is left and break loop
