@@ -9,6 +9,13 @@ var GHOST_ENTERING_HOME = 3;
 var GHOST_PACING_HOME = 4;
 var GHOST_LEAVING_HOME = 5;
 
+// AI types
+var GHOST_AI_NORMAL = 0;
+var GHOST_AI_CD = 1;
+var GHOST_AI_HARD = 2;
+
+var ghostAi = GHOST_AI_NORMAL;
+
 // Ghost constructor
 var Ghost = function() {
     // inherit data from Actor
@@ -339,6 +346,7 @@ Ghost.prototype.steer = function() {
 
     var dirEnum;                         // final direction to update to
     var openTiles;                       // list of four booleans indicating which surrounding tiles are open
+    var openTilesAll;                    // like openTiles, but including 180° turn
     var oppDirEnum = rotateAboutFace(this.dirEnum); // current opposite direction enum
     var actor;                           // actor whose corner we will target
 
@@ -359,7 +367,7 @@ Ghost.prototype.steer = function() {
     if (this.distToMid.x == 0 && this.distToMid.y == 0) {
 
         // trigger reversal
-        if (this.sigReverse) {
+        if (this.sigReverse && ghostAi != GHOST_AI_HARD ) {
             this.faceDirEnum = oppDirEnum;
             this.sigReverse = false;
         }
@@ -382,6 +390,7 @@ Ghost.prototype.steer = function() {
 
         // get tiles surrounding next tile and their open indication
         openTiles = getOpenTiles(nextTile, this.dirEnum);
+        openTilesAll = getOpenTiles(nextTile);
 
         if (this.scared) {
             // choose a random turn
@@ -431,13 +440,14 @@ Ghost.prototype.steer = function() {
 
             if (!dirDecided) {
                 // Do not constrain turns for ghosts going home. (thanks bitwave)
-                if (this.mode != GHOST_GOING_HOME) {
+                // Do not constrain in hard AI mode
+                if (this.mode != GHOST_GOING_HOME && ghostAi != GHOST_AI_HARD) {
                     if (map.constrainGhostTurns) {
                         // edit openTiles to reflect the current map's special contraints
                         map.constrainGhostTurns(nextTile, openTiles, this.dirEnum);
                     }
                 }
-                if (this.mode == GHOST_GOING_HOME || this.targetting =='corner' || state == learnState){
+                if (this.mode == GHOST_GOING_HOME || this.targetting =='corner' || state == learnState || ghostAi == GHOST_AI_NORMAL){
                     // ghost is going home or scattering: use normal method with target
                     // choose direction that minimizes distance to target
                     // also do original behavior in learn game state
@@ -445,8 +455,11 @@ Ghost.prototype.steer = function() {
                     this.futureTile = this.tile;
                 }else{
                     // ghost is targetting pacman: use hill climbing
-                    dirEnum = getTurnSteepestHill(nextTile, openTiles);
-
+                    if(ghostAi == GHOST_AI_HARD){
+                        dirEnum = getTurnSteepestHill(nextTile, openTilesAll);
+                    }else{
+                        dirEnum = getTurnSteepestHill(nextTile, openTiles);
+                    }
                     // update heatmap with future information
                     let dir = {};
                     setDirFromEnum(dir,dirEnum);
@@ -484,9 +497,14 @@ Ghost.prototype.setTarget = function() {
     this.targetTile = this.getTargetTile();
 
     // who targets pacman?
-    // if playing normal game mode: every ghost,
-    // otherwise: every ghost except clyde
-    if (state != learnState || this != clyde) { 
+    if (ghostAi == GHOST_AI_NORMAL || state == learnState){
+        if (this != clyde) { 
+            this.targetting = 'pacman';
+        }
+    }else{
+        // if playing normal game mode: every ghost,
+        // otherwise: every ghost except clyde
         this.targetting = 'pacman';
+        
     }
 };

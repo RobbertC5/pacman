@@ -350,7 +350,7 @@ var initRenderer = function(){
                 openTiles = getOpenTiles(tile, dirEnum);
                 if (actor != pacman && map.constrainGhostTurns)
                     map.constrainGhostTurns(tile, openTiles, dirEnum);
-                if (actor.mode == GHOST_GOING_HOME || actor.targetting =='corner' || state == learnState) {
+                if (actor.mode == GHOST_GOING_HOME || actor.targetting =='corner' || state == learnState || ghostAi == GHOST_AI_NORMAL) {
                     dirEnum = getTurnClosestToTarget(tile, target, openTiles);
                 } else {
                     dirEnum = getTurnSteepestHill(tile, openTiles);

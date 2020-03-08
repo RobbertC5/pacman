@@ -96,7 +96,11 @@ var ghostCommander = (function() {
             }
         },
         getCommand: function() {
-            return command; 
+            if (ghostAi == GHOST_AI_HARD){
+                return GHOST_CMD_CHASE; 
+            }else{
+                return command;
+            }
         },
         setCommand: function(cmd) {
             command = cmd;
